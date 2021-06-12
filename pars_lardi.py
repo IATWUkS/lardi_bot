@@ -56,7 +56,7 @@ def get_cargo(URL_list, tg_id):
                         db_bot.insert_carge_info(list_write[0], list_write[1], list_write[2], list_write[3],
                                                  list_write[4],
                                                  list_write[5], list_write[6], list_write[7], name, URL, tg_id)
-                        all_list_write.append(list_write[5])
+                        all_list_write.append(URL)
                 list_write.clear()
         except:
             pass

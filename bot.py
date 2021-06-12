@@ -53,11 +53,11 @@ def callback_query(call):
         add_url_search = InlineKeyboardButton('Добавить ссылку', callback_data='add_url_search')
         remove_url_search = InlineKeyboardButton('Удалить ссылки', callback_data='remove_url_search')
         menu = InlineKeyboardButton('Меню', callback_data='menu')
-        kb.add(start_search, stop_search)
         kb.add(add_url_search, remove_url_search)
-        kb.add(menu)
         status = db_bot.get_id_tg_info(str(call.message.chat.id))
         if int(status['status_monit']) == 1:
+            kb.add(start_search)
+            kb.add(menu)
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text='Меню '
                                                                                                          'управлением '
                                                                                                          'мониторингом '
@@ -65,6 +65,8 @@ def callback_query(call):
                                                                                                          'грузов',
                                   reply_markup=kb)
         if int(status['status_monit']) == 0:
+            kb.add(stop_search)
+            kb.add(menu)
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text='Меню '
                                                                                                          'управлением '
                                                                                                          'мониторингом '
@@ -78,8 +80,8 @@ def callback_query(call):
         kb = InlineKeyboardMarkup()
         cargo_users = InlineKeyboardButton('Назад', callback_data='search_cargo')
         for url in urls:
-            delete_url = InlineKeyboardButton(url['url'], callback_data=url['url'])
-            manage.list_delete_url_next_search.append(url['url'])
+            delete_url = InlineKeyboardButton(url['name'], callback_data=str(url['id']) + '_re')
+            manage.list_delete_url_next_search.append(str(url['id']) + '_re')
             kb.add(delete_url)
         kb.add(cargo_users)
         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
@@ -89,8 +91,8 @@ def callback_query(call):
         kb = InlineKeyboardMarkup()
         cargo_users = InlineKeyboardButton('Назад', callback_data='search_cargo')
         kb.add(cargo_users)
-        url = call.data
-        db_bot.delete_cargo_url_search(url)
+        id_url = call.data.split('_')[0]
+        db_bot.delete_cargo_url_search(id_url)
         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text='Успешно удалено.',
                               reply_markup=kb)
     if call.data == 'stop_search':
@@ -102,7 +104,7 @@ def callback_query(call):
                               text='Мониторинг закончен.', reply_markup=kb)
     if call.data == 'add_url_search':
         msg = bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                    text='Введите ссылку:')
+                                    text='Введите ссылку(Поиск груза):')
         bot.register_next_step_handler(msg, add_url_step_search)
     if call.data == 'start_search':
         on_off = {}
@@ -134,13 +136,14 @@ def callback_query(call):
                 list_write_all = pars_lardi.get_cargo_search(list_upload_url, str(call.message.chat.id))
                 for url in list_write_all:
                     list_check = db_bot.get_cargo_info_search(url)
+                    data_url_info = db_bot.get_cargo_url_search_url(url)
                     kb = InlineKeyboardMarkup()
                     open_full_info = InlineKeyboardButton('Подробнее',
                                                           callback_data=str(list_check['id']))
                     open_lardi = InlineKeyboardButton('Открыть', url=list_check['url'])
                     manage.list_open_info_search.append(str(list_check['id']))
                     kb.add(open_full_info, open_lardi)
-                    bot.send_message(list_check['tg_id'], 'Новая заявка', reply_markup=kb)
+                    bot.send_message(list_check['tg_id'], 'Новая заявка от ' + str(data_url_info['name']), reply_markup=kb)
             print('круг')
             time.sleep(60)
             status = db_bot.get_id_tg_info(str(call.message.chat.id))
@@ -176,7 +179,7 @@ def callback_query(call):
                                                                                                          list_check[
                                                                                                              'contacts']),
                               reply_markup=kb)
-    # Грузы пользователя
+    # Грузы партнеров
     if call.data == 'cargo_users':
         kb = InlineKeyboardMarkup()
         start = InlineKeyboardButton('Начать мониторинг', callback_data='start')
@@ -184,11 +187,11 @@ def callback_query(call):
         add_url = InlineKeyboardButton('Добавить ссылку', callback_data='add_url')
         remove_url = InlineKeyboardButton('Удалить ссылки', callback_data='remove_url')
         menu = InlineKeyboardButton('Меню', callback_data='menu')
-        kb.add(start, stop)
         kb.add(add_url, remove_url)
-        kb.add(menu)
         status = db_bot.get_id_tg_info(str(call.message.chat.id))
         if int(status['status_monit_two']) == 1:
+            kb.add(start)
+            kb.add(menu)
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text='Меню '
                                                                                                          'управлением '
                                                                                                          'мониторингом '
@@ -196,6 +199,8 @@ def callback_query(call):
                                                                                                          'пользователей',
                                   reply_markup=kb)
         if int(status['status_monit_two']) == 0:
+            kb.add(stop)
+            kb.add(menu)
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text='Меню '
                                                                                                          'управлением '
                                                                                                          'мониторингом '
@@ -207,8 +212,8 @@ def callback_query(call):
         kb = InlineKeyboardMarkup()
         cargo_users = InlineKeyboardButton('Назад', callback_data='cargo_users')
         for url in urls:
-            delete_url = InlineKeyboardButton(url['url'], callback_data=url['url'])
-            manage.list_delete_url_next.append(url['url'])
+            delete_url = InlineKeyboardButton(url['name'], callback_data=str(url['id']) + '_re')
+            manage.list_delete_url_next.append(str(url['id']) + '_re')
             kb.add(delete_url)
         kb.add(cargo_users)
         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
@@ -218,8 +223,8 @@ def callback_query(call):
         kb = InlineKeyboardMarkup()
         cargo_users = InlineKeyboardButton('Назад', callback_data='cargo_users')
         kb.add(cargo_users)
-        url = call.data
-        db_bot.delete_cargo_url(url)
+        id_url = call.data.split('_')[0]
+        db_bot.delete_cargo_url(id_url)
         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text='Успешно удалено.',
                               reply_markup=kb)
     if call.data == 'stop':
@@ -231,7 +236,7 @@ def callback_query(call):
                               text='Мониторинг закончен.', reply_markup=kb)
     if call.data == 'add_url':
         msg = bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                    text='Введите ссылку:')
+                                    text='Введите ссылку(Грузы партнеров):')
         bot.register_next_step_handler(msg, add_url_step)
     if call.data == 'start':
         on_off = {}
@@ -259,9 +264,9 @@ def callback_query(call):
                 for data in list_url:
                     list_upload_url.append(data['url'])
                 list_write_all = pars_lardi.get_cargo(list_upload_url, str(call.message.chat.id))
-                for cargo in list_write_all:
+                for URL in list_write_all:
                     kb = InlineKeyboardMarkup()
-                    list_check = db_bot.get_cargo_info(cargo)
+                    list_check = db_bot.get_cargo_info(URL)
                     open_full_info = InlineKeyboardButton('Подробнее',
                                                           callback_data=str(list_check['id']))
                     open_lardi = InlineKeyboardButton('Открыть', url=list_check['url'])
@@ -310,7 +315,22 @@ def add_url_step(message):
             kb.add(cargo_users)
             bot.send_message(message.chat.id, 'Отмена ввода, нажмите кнопку', reply_markup=kb)
         else:
-            db_bot.insert_cargo_url(URL, str(message.chat.id))
+            msg = bot.send_message(message.chat.id, 'Введите названия:')
+            bot.register_next_step_handler(msg, add_url_step_2, URL)
+    except:
+        bot.send_message(message.chat.id, 'Ошибка добавления URL')
+
+
+def add_url_step_2(message, URL):
+    name = message.text
+    try:
+        if name == '/start':
+            kb = InlineKeyboardMarkup()
+            cargo_users = InlineKeyboardButton('Назад', callback_data='cargo_users')
+            kb.add(cargo_users)
+            bot.send_message(message.chat.id, 'Отмена ввода, нажмите кнопку', reply_markup=kb)
+        else:
+            db_bot.insert_cargo_url(URL, str(message.chat.id), name)
             kb = InlineKeyboardMarkup()
             cargo_users = InlineKeyboardButton('Назад', callback_data='cargo_users')
             kb.add(cargo_users)
@@ -328,7 +348,22 @@ def add_url_step_search(message):
             kb.add(cargo_users)
             bot.send_message(message.chat.id, 'Отмена ввода, нажмите кнопку', reply_markup=kb)
         else:
-            db_bot.insert_cargo_url_search(URL, str(message.chat.id))
+            msg = bot.send_message(message.chat.id, 'Введите название:')
+            bot.register_next_step_handler(msg, add_url_step_search_2, URL)
+    except:
+        bot.send_message(message.chat.id, 'Ошибка добавления URL')
+
+
+def add_url_step_search_2(message, URL):
+    name = message.text
+    try:
+        if name == '/start':
+            kb = InlineKeyboardMarkup()
+            cargo_users = InlineKeyboardButton('Назад', callback_data='search_cargo')
+            kb.add(cargo_users)
+            bot.send_message(message.chat.id, 'Отмена ввода, нажмите кнопку', reply_markup=kb)
+        else:
+            db_bot.insert_cargo_url_search(URL, str(message.chat.id), name)
             kb = InlineKeyboardMarkup()
             cargo_users = InlineKeyboardButton('Назад', callback_data='search_cargo')
             kb.add(cargo_users)

@@ -32,19 +32,16 @@ def message_handler(message):
         stop_search = InlineKeyboardButton('Закончить мониторинг', callback_data='stop_search')
         add_url_search = InlineKeyboardButton('Добавить ссылку', callback_data='add_url_search')
         remove_url_search = InlineKeyboardButton('Удалить ссылки', callback_data='remove_url_search')
-        menu = InlineKeyboardButton('Меню', callback_data='menu')
         kb.add(add_url_search, remove_url_search)
         status = db_bot.get_id_tg_info(str(message.chat.id))
         if int(status['status_monit']) == 1:
             kb.add(start_search)
-            kb.add(menu)
             bot.send_message(chat_id=message.chat.id, text='Меню '
                                                            'управлением '
                                                            'мониторингом ',
                              reply_markup=kb)
         if int(status['status_monit']) == 0:
             kb.add(stop_search)
-            kb.add(menu)
             bot.send_message(chat_id=message.chat.id, text='Меню '
                                                            'управлением '
                                                            'мониторингом\n'
@@ -63,12 +60,10 @@ def callback_query(call):
         stop_search = InlineKeyboardButton('Закончить мониторинг', callback_data='stop_search')
         add_url_search = InlineKeyboardButton('Добавить ссылку', callback_data='add_url_search')
         remove_url_search = InlineKeyboardButton('Удалить ссылки', callback_data='remove_url_search')
-        menu = InlineKeyboardButton('Меню', callback_data='menu')
         kb.add(add_url_search, remove_url_search)
         status = db_bot.get_id_tg_info(str(call.message.chat.id))
         if int(status['status_monit']) == 1:
             kb.add(start_search)
-            kb.add(menu)
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text='Меню '
                                                                                                          'управлением '
                                                                                                          'мониторингом '
@@ -77,7 +72,6 @@ def callback_query(call):
                                   reply_markup=kb)
         if int(status['status_monit']) == 0:
             kb.add(stop_search)
-            kb.add(menu)
             bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text='Меню '
                                                                                                          'управлением '
                                                                                                          'мониторингом '
@@ -146,7 +140,7 @@ def callback_query(call):
                 for data in list_url:
                     if data['url'].split('/')[3] == 'gruz':
                         list_upload_url_gruz.append(data['url'])
-                    if data['url'].split('/')[3] == 'user':
+                    if data['url'].split('/')[3] == 'user' or data['url'].split('/')[3] == 'trans':
                         list_upload_url_truns.append(data['url'])
                 list_write_all = pars_lardi.get_cargo_search(list_upload_url_gruz, str(call.message.chat.id))
                 for url in list_write_all:

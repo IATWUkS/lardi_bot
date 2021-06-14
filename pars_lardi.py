@@ -13,7 +13,7 @@ PASSWORD = data.PASSWORD
 
 def get_html(URL):
     options = webdriver.ChromeOptions()
-    options.add_argument('headless')
+    # options.add_argument('headless')
     browser = webdriver.Chrome(options=options)
     browser.get('https://lardi-trans.com/ru/accounts/login/')
     browser.find_element_by_css_selector('#loginData').send_keys(LOGIN)
@@ -55,7 +55,7 @@ def get_cargo(URL_list, tg_id):
                     if check is None or check['cargo'] != list_write[5]:
                         db_bot.insert_carge_info(list_write[0], list_write[1], list_write[2], list_write[3],
                                                  list_write[4],
-                                                 list_write[5], list_write[6], list_write[7], name, URL, tg_id)
+                                                 list_write[5], list_write[6], list_write[7], name, URL, tg_id, URL)
                         all_list_write.append(URL)
                 list_write.clear()
         except:
@@ -85,7 +85,7 @@ def get_cargo_search(URL_list, tg_id):
                 if check is None or check['url'] != url:
                     try:
                         db_bot.insert_carge_info_search(country, date, transport, from_is, to_is, cargo, pay, contacts,
-                                                        url, tg_id)
+                                                        url, tg_id, URL)
                         all_list_write.append(url)
                     except:
                         pass

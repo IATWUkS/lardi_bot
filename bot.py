@@ -107,9 +107,9 @@ def callback_query(call):
                                     text='Введите ссылку(Поиск груза):')
         bot.register_next_step_handler(msg, add_url_step_search)
     if call.data == 'start_search':
+        db_bot.update_status('0', str(call.message.chat.id))
         on_off = {}
         status = db_bot.get_id_tg_info(str(call.message.chat.id))
-        db_bot.update_status('0', str(call.message.chat.id))
         on_off[str(status['ids_tg'])] = int(status['status_monit'])
         kb = InlineKeyboardMarkup()
         cargo_users = InlineKeyboardButton('Назад', callback_data='search_cargo')
@@ -136,14 +136,14 @@ def callback_query(call):
                 list_write_all = pars_lardi.get_cargo_search(list_upload_url, str(call.message.chat.id))
                 for url in list_write_all:
                     list_check = db_bot.get_cargo_info_search(url)
-                    data_url_info = db_bot.get_cargo_url_search_url(url)
+                    data_url_info = db_bot.get_cargo_url_search_url(list_check['global_url'])
                     kb = InlineKeyboardMarkup()
                     open_full_info = InlineKeyboardButton('Подробнее',
                                                           callback_data=str(list_check['id']))
                     open_lardi = InlineKeyboardButton('Открыть', url=list_check['url'])
                     manage.list_open_info_search.append(str(list_check['id']))
                     kb.add(open_full_info, open_lardi)
-                    bot.send_message(list_check['tg_id'], 'Новая заявка от ' + str(data_url_info['name']), reply_markup=kb)
+                    bot.send_message(str(list_check['tg_id']), 'Новая заявка от ' + str(data_url_info['name']), reply_markup=kb)
             print('круг')
             time.sleep(60)
             status = db_bot.get_id_tg_info(str(call.message.chat.id))
@@ -240,8 +240,8 @@ def callback_query(call):
         bot.register_next_step_handler(msg, add_url_step)
     if call.data == 'start':
         on_off = {}
-        status = db_bot.get_id_tg_info(str(call.message.chat.id))
         db_bot.update_status_two('0', str(call.message.chat.id))
+        status = db_bot.get_id_tg_info(str(call.message.chat.id))
         on_off[str(status['ids_tg'])] = int(status['status_monit_two'])
         kb = InlineKeyboardMarkup()
         cargo_users = InlineKeyboardButton('Назад', callback_data='cargo_users')
@@ -372,8 +372,5 @@ def add_url_step_search_2(message, URL):
         bot.send_message(message.chat.id, 'Ошибка добавления URL')
 
 
-while True:
-    try:
-        bot.polling(none_stop=True)
-    except:
-        pass
+
+bot.polling()

@@ -14,22 +14,22 @@ def get_conn():
     return connection
 
 
-def insert_carge_info(country, date, transport, from_tr, to, cargo, pay, contacts, name, url, tg_id):
+def insert_carge_info(country, date, transport, from_tr, to, cargo, pay, contacts, name, url, tg_id, global_url):
     connection = get_conn()
-    sql = 'INSERT INTO cargo_info(country, date, transport, from_is, to_is, cargo, pay, contacts, name, url, tg_id) VALUES ("%s", "%s", "%s", ' \
-          '"%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s")' % (
-              country, date, transport, from_tr, to, cargo, pay, contacts, name, url, tg_id)
+    sql = 'INSERT INTO cargo_info(country, date, transport, from_is, to_is, cargo, pay, contacts, name, url, tg_id, global_url) VALUES ("%s", "%s", "%s", ' \
+          '"%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s")' % (
+              country, date, transport, from_tr, to, cargo, pay, contacts, name, url, tg_id, global_url)
     cursor = connection.cursor()
     cursor.execute(sql)
     connection.commit()
     connection.close()
 
 
-def insert_carge_info_search(country, date, transport, from_tr, to, cargo, pay, contacts, url, tg_id):
+def insert_carge_info_search(country, date, transport, from_tr, to, cargo, pay, contacts, url, tg_id, global_url):
     connection = get_conn()
-    sql = 'INSERT INTO cargo_search_info(country, date, transport, from_is, to_is, cargo, pay, contacts, url, tg_id) VALUES ("%s", "%s", "%s", ' \
-          '"%s", "%s", "%s", "%s", "%s", "%s", "%s")' % (
-              country, date, transport, from_tr, to, cargo, pay, contacts, url, tg_id)
+    sql = 'INSERT INTO cargo_search_info(country, date, transport, from_is, to_is, cargo, pay, contacts, url, tg_id, global_url) VALUES ("%s", "%s", "%s", ' \
+          '"%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s")' % (
+              country, date, transport, from_tr, to, cargo, pay, contacts, url, tg_id, global_url)
     cursor = connection.cursor()
     cursor.execute(sql)
     connection.commit()
@@ -165,7 +165,7 @@ def get_cargo_url_search_url(url):
         cursor = connection.cursor()
         sql = 'SELECT * FROM ulr_pars_cargo_search WHERE url = "%s"' % url
         cursor.execute(sql)
-        data = cursor.fetchall()
+        data = cursor.fetchone()
         connection.close()
         return data
     except:

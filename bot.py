@@ -4,11 +4,11 @@ import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from telebot.util import async_dec
 
+import data
 import db_bot
 import pars_lardi
 
-TOKEN = '1854615914:AAEMtw-A2pAwgxbeFCyy5CI8S09PivPLAFo'
-bot = telebot.TeleBot(TOKEN)
+bot = telebot.TeleBot(data.TOKEN)
 
 
 class manage:
@@ -109,7 +109,7 @@ def callback_query(call):
                               text='Мониторинг закончен.', reply_markup=kb)
     if call.data == 'add_url_search':
         msg = bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                    text='Введите ссылку:')
+                                    text='Введите ссылку(/start для отмены):')
         bot.register_next_step_handler(msg, add_url_step_search)
     if call.data == 'start_search':
         db_bot.update_status('0', str(call.message.chat.id))
@@ -138,9 +138,9 @@ def callback_query(call):
                 list_upload_url_gruz = []
                 list_upload_url_truns = []
                 for data in list_url:
-                    if data['url'].split('/')[3] == 'gruz':
+                    if data['url'].split('/')[3] == 'gruz' or data['url'].split('/')[3] == 'trans':
                         list_upload_url_gruz.append(data['url'])
-                    if data['url'].split('/')[3] == 'user' or data['url'].split('/')[3] == 'trans':
+                    if data['url'].split('/')[3] == 'user':
                         list_upload_url_truns.append(data['url'])
                 list_write_all = pars_lardi.get_cargo_search(list_upload_url_gruz, str(call.message.chat.id))
                 for url in list_write_all:
@@ -150,8 +150,10 @@ def callback_query(call):
                     open_full_info = InlineKeyboardButton('Подробнее',
                                                           callback_data=str(list_check['id']))
                     open_lardi = InlineKeyboardButton('Открыть', url=list_check['url'])
+                    open_lardi_full = InlineKeyboardButton('Открыть весь фильтр', url=list_check['global_url'])
                     manage.list_open_info_search.append(str(list_check['id']))
                     kb.add(open_full_info, open_lardi)
+                    kb.add(open_lardi_full)
                     bot.send_message(str(list_check['tg_id']), 'Новая заявка от ' + str(data_url_info['name']),
                                      reply_markup=kb)
                 list_write_all = pars_lardi.get_cargo(list_upload_url_truns, str(call.message.chat.id))
@@ -365,16 +367,21 @@ def add_url_step_2(message, URL):
 def add_url_step_search(message):
     URL = message.text
     try:
+        if URL.lower() == 'хуй':
+            bot.send_message(message.chat.id, 'Сам хуй')
         if URL == '/start':
             kb = InlineKeyboardMarkup()
             cargo_users = InlineKeyboardButton('Назад', callback_data='menu')
             kb.add(cargo_users)
             bot.send_message(message.chat.id, 'Отмена ввода, нажмите кнопку', reply_markup=kb)
-        else:
+        if URL.split('/')[3] == 'gruz' or URL.split('/')[3] == 'user' or URL.split('/')[3] == 'trans':
             msg = bot.send_message(message.chat.id, 'Введите название:')
             bot.register_next_step_handler(msg, add_url_step_search_2, URL)
     except:
-        bot.send_message(message.chat.id, 'Ошибка добавления URL')
+        kb = InlineKeyboardMarkup()
+        cargo_users = InlineKeyboardButton('Назад', callback_data='menu')
+        kb.add(cargo_users)
+        bot.send_message(message.chat.id, 'Ошибка добавления URL', reply_markup=kb)
 
 
 def add_url_step_search_2(message, URL):

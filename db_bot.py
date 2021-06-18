@@ -14,11 +14,11 @@ def get_conn():
     return connection
 
 
-def insert_carge_info(country, date, transport, from_tr, to, cargo, pay, contacts, name, url, tg_id, global_url):
+def insert_carge_info(country, date, transport, from_tr, to, cargo, pay, contacts, name, url, tg_id, global_url, id_gruz):
     connection = get_conn()
-    sql = 'INSERT INTO cargo_info(country, date, transport, from_is, to_is, cargo, pay, contacts, name, url, tg_id, global_url) VALUES ("%s", "%s", "%s", ' \
-          '"%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s")' % (
-              country, date, transport, from_tr, to, cargo, pay, contacts, name, url, tg_id, global_url)
+    sql = 'INSERT INTO cargo_info(country, date, transport, from_is, to_is, cargo, pay, contacts, name, url, tg_id, global_url, id_gruz) VALUES ("%s", "%s", "%s", ' \
+          '"%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s")' % (
+              country, date, transport, from_tr, to, cargo, pay, contacts, name, url, tg_id, global_url, id_gruz)
     cursor = connection.cursor()
     cursor.execute(sql)
     connection.commit()
@@ -105,7 +105,7 @@ def get_cargo(cargo):
     connection = get_conn()
     try:
         cursor = connection.cursor()
-        sql = 'SELECT cargo FROM cargo_info WHERE cargo = "%s"' % cargo
+        sql = 'SELECT cargo FROM cargo_info WHERE id_gruz = "%s"' % cargo
         cursor.execute(sql)
         data = cursor.fetchone()
         connection.close()

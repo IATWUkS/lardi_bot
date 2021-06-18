@@ -1,3 +1,0 @@
-LOGIN = 'autoworkshop'
-PASSWORD = 'avcehsecret777'
-TOKEN = '1607518857:AAHPGpceDFlo5COeDttNyCEDaQHr5wLVR9I'
